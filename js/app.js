@@ -9,9 +9,14 @@ var Enemy = function(posX,posY) {
     this.x = posX;
     this.y = posY;
     // speed will control the update method
-    this.speed = 2;
+    this.speed = 200;
     // direction needed to guide the bug when moving through the canvas                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
     this.isGoingRight = true;
+    // adding edge propreties for collision detection
+    this.leftEdge  = this.x;
+    this.rightEdge = this.x + 100;
+    this.topEdge   = this.y + 80;
+    this.botEdge   = this.y + 140; 
 };
 
 // Flip the enemy's direction
@@ -35,6 +40,16 @@ Enemy.prototype.update = function(dt) {
     if (this.x > 390 || this.x < 10) {
         this.flip();
     }
+    this.leftEdge  = this.x;
+    this.rightEdge = this.x + 100;
+    this.topEdge   = this.y + 80;
+    this.botEdge   = this.y + 140;
+    if (this.leftEdge < player.rightEdge
+            && this.rightEdge > player.leftEdge
+            && this.topEdge < player.botEdge
+            && this.botEdge > player.topEdge) {
+        player.reset();
+    }
     
 };
 
@@ -45,14 +60,28 @@ Enemy.prototype.render = function() {
 
 // Now write your own player class
 var Player = function() {
-    this.sprite = 'images/char-boy.png';  
-    this.x      = 2 * 101;
-    this.y      = 6 * 63;
+    this.sprite    = 'images/char-boy.png';  
+    this.x         = 2 * 101;
+    this.y         = 6 * 63;
+    this.leftEdge  = this.x + 25;
+    this.rightEdge = this.x + 65;
+    this.topEdge   = this.y + 100;
+    this.botEdge   = this.y + 140;
 }
 // This class requires an update(), render() and
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
+Player.prototype.update = function() {
+    this.leftEdge  = this.x + 25;
+    this.rightEdge = this.x + 65;
+    this.topEdge   = this.y + 100;
+    this.botEdge   = this.y + 140;
+}
+Player.prototype.reset = function() {
+    this.x      = 2 * 101;
+    this.y      = 6 * 63;
+}
 // a handleInput() method.
 Player.prototype.handleInput = function (pressedKey) {
     switch(pressedKey) {
@@ -104,7 +133,7 @@ document.addEventListener('keyup', function(e) {
         39: 'right',
         40: 'down'
     };
-
+    console.log(allowedKeys[e.keyCode]);
     player.handleInput(allowedKeys[e.keyCode]);
 });
 
